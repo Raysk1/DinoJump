@@ -15,7 +15,7 @@ public class MenuScreen extends BaseScreen {
     private Stage stage;
     private Skin skin;
     private Image name;
-    private TextButton play;
+    private TextButton play, options;
 
     public MenuScreen(final MainGame game) {
         super(game);
@@ -23,6 +23,7 @@ public class MenuScreen extends BaseScreen {
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         name = new Image(game.getManager().get("play.png", Texture.class));
         play = new TextButton("Play", skin);
+        options = new TextButton("Options", skin);
 
         play.addCaptureListener(new ChangeListener() {
             @Override
@@ -31,14 +32,25 @@ public class MenuScreen extends BaseScreen {
             }
         });
 
+        options.addCaptureListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(game.optionsScreen);
+            }
+        });
+
        name.setPosition(320-name.getWidth()/8,320-name.getHeight()/1.5f);
        name.setSize(160,80);
        stage.addActor(name);
 
-        play.setPosition(320-play.getWidth()/2,100);
-
         play.setSize(90,40);
+        play.setPosition(320-play.getWidth()/2,150);
         stage.addActor(play);
+
+
+        options.setSize(90,40);
+        options.setPosition(320-options.getWidth()/2,100);
+        stage.addActor(options);
     }
 
     @Override

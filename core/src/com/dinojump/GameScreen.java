@@ -22,17 +22,16 @@ import com.dinojump.entities.SpikeEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
-
 public class GameScreen extends BaseScreen {
     private Stage stage;
     private World world;
     private com.dinojump.entities.PlayerEntity player;
-    private List<FloorEntity> floorList = new ArrayList<FloorEntity>();
-    private List<SpikeEntity> spikeList = new ArrayList<SpikeEntity>();
-    private List<CactusEntity> cactusList = new ArrayList<CactusEntity>();
+    private List<FloorEntity> floorList = new ArrayList<>();
+    private List<SpikeEntity> spikeList = new ArrayList<>();
+    private List<CactusEntity> cactusList = new ArrayList<>();
     private Sound dieSound, jumpSound;
     private Music gameMusic;
+    private boolean musicOn, soundOn;
 
 
     public GameScreen(final MainGame game) {
@@ -56,7 +55,7 @@ public class GameScreen extends BaseScreen {
                     player.setJumping(false);
                     if (Gdx.input.isTouched()) {
                         player.setMustJump(true);
-                        if (player.isAlive()) {
+                        if (player.isAlive() && soundOn) {
                             jumpSound.play();
                         }
                     }
@@ -64,7 +63,9 @@ public class GameScreen extends BaseScreen {
 
                 if (areCollided(contact, "player", "spike")) {
                     player.setAlive(false);
-                    dieSound.play();
+                    if (soundOn) {
+                        dieSound.play();
+                    }
                     Gdx.input.vibrate(2000);
                     game.switchScreen(game, game.gameOverScreen, stage, 2.5f);
                 }
@@ -93,7 +94,6 @@ public class GameScreen extends BaseScreen {
     @Override
     public void show() {
         Texture playerTexture = game.getManager().get("DinoSprites - doux.png");
-        ;
         player = new PlayerEntity(world, playerTexture, new Vector2(-1, 1.5f));
         stage.addActor(player);
 
@@ -116,7 +116,7 @@ public class GameScreen extends BaseScreen {
             stage.addActor(spike);
         }
 
-        Texture cactusTexture = game.getManager().get("cactus.png");
+        Texture cactusTexture = game.getManager().get("Cactus.png");
         cactusList.add(new CactusEntity(world, cactusTexture, 55, 1));
         cactusList.add(new CactusEntity(world, cactusTexture, 56, 1));
         cactusList.add(new CactusEntity(world, cactusTexture, 57, 1));
@@ -124,8 +124,9 @@ public class GameScreen extends BaseScreen {
         for (CactusEntity cactus : cactusList) {
             stage.addActor(cactus);
         }
-
-        gameMusic.play();
+        if (musicOn) {
+            gameMusic.play();
+        }
     }
 
     public void hide() {
@@ -139,7 +140,7 @@ public class GameScreen extends BaseScreen {
             spike.detach();
         }
 
-        for (CactusEntity cactus : cactusList){
+        for (CactusEntity cactus : cactusList) {
             cactus.detach();
         }
 
@@ -170,7 +171,7 @@ public class GameScreen extends BaseScreen {
         }
 
         if (Gdx.input.justTouched()) {
-            if (player.isAlive() && !player.isJumping()) {
+            if (player.isAlive() && !player.isJumping() && soundOn) {
                 jumpSound.play();
             }
             player.jump();
@@ -187,4 +188,15 @@ public class GameScreen extends BaseScreen {
     }
 
 
+    public void setMusicOn(boolean musicOn) {
+        this.musicOn = musicOn;
+    }
+
+    public boolean isSoundOn() {
+        return soundOn;
+    }
+
+    public void setSoundOn(boolean soundOn) {
+        this.soundOn = soundOn;
+    }
 }

@@ -18,6 +18,7 @@ public class MainGame extends Game {
 	public com.dinojump.GameScreen gameScreen;
 	public com.dinojump.GameOverScreen gameOverScreen;
 	public com.dinojump.MenuScreen menuScreen;
+	public OptionsScreen optionsScreen;
 
 	public AssetManager getManager(){
 		return manager;
@@ -28,7 +29,7 @@ public class MainGame extends Game {
 		manager = new AssetManager();
 		manager.load("DinoSprites - doux.png",Texture.class);
 		manager.load("spike.png",Texture.class);
-		manager.load("cactus.png",Texture.class);
+		manager.load("Cactus.png",Texture.class);
 		manager.load("floor_1.png",Texture.class);
 		manager.load("overfloor.png",Texture.class);
 		manager.load("audio/die.ogg", Sound.class);
@@ -41,8 +42,9 @@ public class MainGame extends Game {
 		gameScreen = new GameScreen(this);
 		gameOverScreen = new GameOverScreen(this);
 		menuScreen = new MenuScreen(this);
+		optionsScreen = new OptionsScreen(this);
 
-		setScreen(menuScreen);
+		setScreen(optionsScreen);
 	}
 
 	public void switchScreen(final Game game, final Screen newScreen, Stage stage, float delay){
