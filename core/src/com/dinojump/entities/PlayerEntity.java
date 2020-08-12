@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.dinojump.Constants;
+import com.dinojump.Utilities;
 
 import static com.dinojump.Constants.*;
 
@@ -23,9 +24,9 @@ public class PlayerEntity extends Actor {
     private Fixture fixture;
     private boolean alive = true, jumping = false, mustJump = false;
 
-    private Animation animation;
+    private Animation <TextureRegion> animation;
     private float tiempo;
-    private TextureRegion[] regions, playerRunRegion,playerDieRegion;
+    private TextureRegion[] playerRunRegion,playerDieRegion;
     private  TextureRegion actualFrame;
 
 
@@ -59,7 +60,7 @@ public class PlayerEntity extends Actor {
 
         //esto actualiza el movimieto de la imagen
         tiempo += Gdx.graphics.getDeltaTime();
-        actualFrame = (TextureRegion) animation.getKeyFrame(tiempo,true);
+        actualFrame = animation.getKeyFrame(tiempo,true);
         batch.draw(actualFrame,getX(),getY(),getWidth(),getHeight());
     }
 
@@ -125,24 +126,12 @@ public class PlayerEntity extends Actor {
     }
 
     private void playerTexture(){
-        TextureRegion tmp[][] = TextureRegion.split(texture,texture.getWidth()/24,texture.getHeight());
-        regions = new TextureRegion[24];
         playerRunRegion = new TextureRegion[6];
         playerDieRegion = new TextureRegion[3];
-        for (int i = 0; i < 24; i++){
-            regions[i] = tmp[0][i];
-        }
-
-        for (int i = 0; i<6;i++){
-            playerRunRegion[i] = regions[i+17];
-        }
-
-        for (int i = 0; i<3;i++){
-            playerDieRegion[i] = regions[i+14];
-        }
 
 
-        animation = new Animation(0.1f,playerRunRegion);
-        tiempo = 0;
+        playerRunRegion = Utilities.textureCutter(texture,24,6,17);
+        playerDieRegion = Utilities.textureCutter(texture,24,3,14);
+        animation = new Animation <TextureRegion>(0.1f,playerRunRegion);
     }
 }

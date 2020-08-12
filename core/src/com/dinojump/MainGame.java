@@ -6,6 +6,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -28,6 +30,10 @@ public class MainGame extends Game {
 	public void create() {
 		manager = new AssetManager();
 		manager.load("DinoSprites - doux.png",Texture.class);
+		manager.load("DinoSprites - mort.png",Texture.class);
+		manager.load("DinoSprites - tard.png",Texture.class);
+		manager.load("DinoSprites - vita.png",Texture.class);
+		manager.load("bg.png",Texture.class);
 		manager.load("spike.png",Texture.class);
 		manager.load("Cactus.png",Texture.class);
 		manager.load("floor_1.png",Texture.class);
@@ -44,7 +50,8 @@ public class MainGame extends Game {
 		menuScreen = new MenuScreen(this);
 		optionsScreen = new OptionsScreen(this);
 
-		setScreen(optionsScreen);
+		setScreen(menuScreen);
+
 	}
 
 	public void switchScreen(final Game game, final Screen newScreen, Stage stage, float delay){
@@ -62,7 +69,6 @@ public class MainGame extends Game {
 	}
 
 
+	}
 
 
-
-}

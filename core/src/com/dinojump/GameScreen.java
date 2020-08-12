@@ -31,7 +31,8 @@ public class GameScreen extends BaseScreen {
     private List<CactusEntity> cactusList = new ArrayList<>();
     private Sound dieSound, jumpSound;
     private Music gameMusic;
-    private boolean musicOn, soundOn;
+    private boolean musicOn = true, soundOn = true;
+    private String playerTexture = "doux";
 
 
     public GameScreen(final MainGame game) {
@@ -93,9 +94,8 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void show() {
-        Texture playerTexture = game.getManager().get("DinoSprites - doux.png");
-        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 1.5f));
-        stage.addActor(player);
+        playerTexture(playerTexture);
+
 
         Texture floorTexture = game.getManager().get("floor_1.png");
         Texture overFloorTexture = game.getManager().get("overfloor.png");
@@ -199,4 +199,24 @@ public class GameScreen extends BaseScreen {
     public void setSoundOn(boolean soundOn) {
         this.soundOn = soundOn;
     }
+
+    private  void playerTexture(String texture){
+        Texture playerTexture = game.getManager().get("DinoSprites - "+texture+".png");
+        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 1.5f));
+        stage.addActor(player);
+    }
+
+    public void setPlayerTexture(String playerTexture) {
+        this.playerTexture = playerTexture;
+    }
+
+    public String getPlayerTexture() {
+        return playerTexture;
+    }
+
+    public boolean isMusicOn() {
+        return musicOn;
+    }
+
+
 }
