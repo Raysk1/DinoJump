@@ -67,7 +67,7 @@ public class GameScreen extends BaseScreen {
                     if (soundOn) {
                         dieSound.play();
                     }
-                    Gdx.input.vibrate(2000);
+                    Gdx.input.vibrate(1500);
                     game.switchScreen(game, game.gameOverScreen, stage, 2.5f);
                 }
             }

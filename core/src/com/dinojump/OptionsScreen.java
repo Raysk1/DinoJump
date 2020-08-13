@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.dinojump.entities.PlayerEntity;
 
 public class OptionsScreen extends BaseScreen {
 
@@ -97,11 +98,11 @@ public class OptionsScreen extends BaseScreen {
 
 
         batch.begin();
-        batch.draw(bg, 0, 0, 640, 360);
+        batch.draw(bg, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         tiempo += Gdx.graphics.getDeltaTime();
         for (int i = 0; i < 4; i++) {
             actualFrame[i] = animation[i].getKeyFrame(tiempo, true);
-            batch.draw(actualFrame[i], stage.getWidth() / 8 * (2 * +i), 180, 135, 180);
+            batch.draw(actualFrame[i], Gdx.graphics.getWidth() / 4 * (i), Gdx.graphics.getHeight()/2, Gdx.graphics.getWidth()/5, Gdx.graphics.getHeight()/3);
 
         }
 
