@@ -3,6 +3,12 @@ package com.dinojump;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -15,6 +21,8 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import static com.dinojump.Constants.PIXELS_IN_METER;
+
 public class Box2DScreen extends BaseScreen {
     private World world;
 
@@ -26,6 +34,10 @@ public class Box2DScreen extends BaseScreen {
 
     private Fixture dinoFixture,sueloFixture,pinchosFixture;
     private boolean isDinoJumping, isMustJump, isAlive = true;
+    SpriteBatch batch;
+    TiledMap map;
+    OrthogonalTiledMapRenderer mapRenderer;
+    private WorldCreator bodyCreator;
 
     public Box2DScreen(MainGame game) {
         super(game);
@@ -36,13 +48,20 @@ public class Box2DScreen extends BaseScreen {
         world = new World(new Vector2(0,-10),true);
         renderer = new Box2DDebugRenderer();
         //control de la camara
-        camera = new OrthographicCamera(16,9);
-        camera.translate(0,1);
+        camera = new OrthographicCamera(32,18);
+        camera.translate(0,0);
         dinoBody();
 
-        sueloBody();
+        batch = new SpriteBatch();
+        map = game.getManager().get("maps/map.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map,1,batch);
+        mapRenderer.setView(camera);
 
-        pinchosBody();
+        bodyCreator = new WorldCreator(world,map);
+        bodyCreator.create();
+        //sueloBody();
+
+        //pinchosBody();
 
         contactListener();
 
@@ -71,16 +90,18 @@ public class Box2DScreen extends BaseScreen {
         return def;
     }
 
-    private BodyDef createSueloBodyDef() {
+    private BodyDef createSueloBodyDef(float x, float y) {
         BodyDef def = new BodyDef();
-        def.position.set(0,-1);
+        //def.position.set(x/PIXELS_IN_METER*2,y/PIXELS_IN_METER*2);
         def.type = BodyDef.BodyType.StaticBody;
+
+        System.out.println(y);
         return def;
     }
 
     private BodyDef createDinoBodyDef() {
         BodyDef def = new BodyDef();
-        def.position.set(-5,0);
+        def.position.set(0,1);
         def.type = BodyDef.BodyType.DynamicBody;
         return def;
     }
@@ -94,6 +115,7 @@ public class Box2DScreen extends BaseScreen {
         world.destroyBody(dinoBody);
         world.destroyBody(sueloBody);
         world.destroyBody(pinchosBody);
+        bodyCreator.detach();
         world.dispose();
         renderer.dispose();
     }
@@ -107,19 +129,49 @@ public class Box2DScreen extends BaseScreen {
 
         world.step(delta,6,2);
 
+        //mapRenderer.setView(camera);
+
         camera.update();
         renderer.render(world,camera.combined);
     }
 
     private  void sueloBody(){
+
+
+
+
+
+
+
+        MapObjects mapObjects = map.getLayers().get("floor").getObjects();
+
+        for (int i = 0; i <mapObjects.getCount() ; i++) {
+
+        RectangleMapObject obj1 = (RectangleMapObject) mapObjects.get(i);
+        Rectangle rect = obj1.getRectangle();
+            BodyDef def = new BodyDef();
+            def.position.set((rect.x*2)/PIXELS_IN_METER,(rect.y*2)/PIXELS_IN_METER);
+            def.type = BodyDef.BodyType.StaticBody;
+
+            System.out.println(rect.x);
+
+            sueloBody = world.createBody(def);
+            PolygonShape sueloShape = new PolygonShape();
+            sueloShape.setAsBox(rect.width/ (PIXELS_IN_METER),rect.height/ (PIXELS_IN_METER));
+            sueloFixture = sueloBody.createFixture(sueloShape,1);
+            sueloShape.dispose();
+            sueloFixture.setUserData("floor");
+        }
+
+
+
+
+
+
+
+
         //otro objeto (Esta vez estatico)
-        BodyDef sueloBodyDef = createSueloBodyDef();
-        sueloBody = world.createBody(sueloBodyDef);
-        PolygonShape sueloShape = new PolygonShape();
-        sueloShape.setAsBox(500,1);
-        sueloFixture = sueloBody.createFixture(sueloShape,1);
-        sueloShape.dispose();
-        sueloFixture.setUserData("floor");
+
 
     }
 
@@ -129,7 +181,7 @@ public class Box2DScreen extends BaseScreen {
         dinoBody = world.createBody(dinoBodyDef);
         PolygonShape dinoShape = new PolygonShape();
         dinoShape.setAsBox(0.5f,0.5f);
-        dinoFixture = dinoBody.createFixture(dinoShape,1);
+        dinoFixture = dinoBody.createFixture(dinoShape,3);
         dinoShape.dispose();
         dinoFixture.setUserData("player");
 
@@ -187,7 +239,7 @@ public class Box2DScreen extends BaseScreen {
 
     private void jump(){
         Vector2 position = dinoBody.getPosition();
-        dinoBody.applyLinearImpulse(0,5,position.x,position.y,true);
+        dinoBody.applyLinearImpulse(0,25,position.x,position.y,true);
     }
 
     private void playerPhysics(){

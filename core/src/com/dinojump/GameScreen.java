@@ -4,7 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -14,30 +18,25 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.dinojump.entities.CactusEntity;
-import com.dinojump.entities.FloorEntity;
 import com.dinojump.entities.PlayerEntity;
-import com.dinojump.entities.SpikeEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameScreen extends BaseScreen {
     private Stage stage;
     private World world;
     private com.dinojump.entities.PlayerEntity player;
-    private List<FloorEntity> floorList = new ArrayList<>();
-    private List<SpikeEntity> spikeList = new ArrayList<>();
-    private List<CactusEntity> cactusList = new ArrayList<>();
     private Sound dieSound, jumpSound;
     private Music gameMusic;
     private boolean musicOn = true, soundOn = true;
     private String playerTexture = "doux";
+    private SpriteBatch batch;
+    private TiledMap map;
+    private OrthogonalTiledMapRenderer mapRenderer;
+    private WorldCreator worldCreator;
 
 
     public GameScreen(final MainGame game) {
         super(game);
-        stage = new Stage(new FillViewport(640, 360));
+        stage = new Stage(new FillViewport(640,320));
         world = new World(new Vector2(0, -10), true);
         dieSound = game.getManager().get("audio/die.ogg");
         jumpSound = game.getManager().get("audio/jump.ogg");
@@ -69,6 +68,7 @@ public class GameScreen extends BaseScreen {
                     }
                     Gdx.input.vibrate(1500);
                     game.switchScreen(game, game.gameOverScreen, stage, 2.5f);
+
                 }
             }
 
@@ -94,36 +94,18 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void show() {
+        stage.getCamera().position.x = 200;
         playerTexture(playerTexture);
+        batch = new SpriteBatch();
+        map = game.getManager().get("maps/map.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map,batch);
+        mapRenderer.setView((OrthographicCamera) stage.getCamera());
+
+        worldCreator = new WorldCreator(world,map);
+        worldCreator.create();
 
 
-        Texture floorTexture = game.getManager().get("floor_1.png");
-        Texture overFloorTexture = game.getManager().get("overfloor.png");
-        floorList.add(new com.dinojump.entities.FloorEntity(world, floorTexture, overFloorTexture, -10, 500, 1));
-        floorList.add(new com.dinojump.entities.FloorEntity(world, floorTexture, overFloorTexture, 30, 5, 2f));
-        for (com.dinojump.entities.FloorEntity floor : floorList) {
-            stage.addActor(floor);
-        }
 
-
-        Texture spikeTexture = game.getManager().get("spike.png");
-        spikeList.add(new com.dinojump.entities.SpikeEntity(world, spikeTexture, 32, 2));
-        spikeList.add(new com.dinojump.entities.SpikeEntity(world, spikeTexture, 40, 1));
-        spikeList.add(new com.dinojump.entities.SpikeEntity(world, spikeTexture, 45, 1));
-        spikeList.add(new com.dinojump.entities.SpikeEntity(world, spikeTexture, 50, 1));
-        spikeList.add(new com.dinojump.entities.SpikeEntity(world, spikeTexture, 20, 1));
-        for (com.dinojump.entities.SpikeEntity spike : spikeList) {
-            stage.addActor(spike);
-        }
-
-        Texture cactusTexture = game.getManager().get("Cactus.png");
-        cactusList.add(new CactusEntity(world, cactusTexture, 55, 1));
-        cactusList.add(new CactusEntity(world, cactusTexture, 56, 1));
-        cactusList.add(new CactusEntity(world, cactusTexture, 57, 1));
-        cactusList.add(new CactusEntity(world, cactusTexture, 58, 1));
-        for (CactusEntity cactus : cactusList) {
-            stage.addActor(cactus);
-        }
         if (musicOn) {
             gameMusic.play();
         }
@@ -133,20 +115,6 @@ public class GameScreen extends BaseScreen {
         stage.clear();
         player.detach();
 
-        for (FloorEntity floor : floorList) {
-            floor.detach();
-        }
-        for (SpikeEntity spike : spikeList) {
-            spike.detach();
-        }
-
-        for (CactusEntity cactus : cactusList) {
-            cactus.detach();
-        }
-
-        floorList.clear();
-        spikeList.clear();
-        cactusList.clear();
     }
 
     @Override
@@ -160,11 +128,12 @@ public class GameScreen extends BaseScreen {
 
         Vector3 position = stage.getCamera().position;
         float cameraLocation = (stage.getWidth() / 2.5f) - position.x;
-        if (player.getX() > cameraLocation && player.isAlive()) {
+        if (player.getX() > 100 && player.getX() > cameraLocation && player.isAlive()) {
             float lerp = 0.1f;
 
             position.x += (player.getX() + cameraLocation) * lerp * delta * Constants.PIXELS_IN_METER;
         }
+        mapRenderer.setView((OrthographicCamera) stage.getCamera());
 
         if (!player.isAlive()) {
             gameMusic.stop();
@@ -177,14 +146,22 @@ public class GameScreen extends BaseScreen {
             player.jump();
 
         }
+        mapRenderer.render();
+
 
         stage.draw();
     }
 
     @Override
     public void dispose() {
+        mapRenderer.dispose();
+        player.detach();
+        batch.dispose();
         stage.dispose();
         world.dispose();
+        map.dispose();
+        worldCreator.detach();
+
     }
 
 
@@ -200,9 +177,9 @@ public class GameScreen extends BaseScreen {
         this.soundOn = soundOn;
     }
 
-    private  void playerTexture(String texture){
-        Texture playerTexture = game.getManager().get("DinoSprites - "+texture+".png");
-        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 1.5f));
+    private void playerTexture(String texture) {
+        Texture playerTexture = game.getManager().get("DinoSprites - " + texture + ".png");
+        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 2f));
         stage.addActor(player);
     }
 

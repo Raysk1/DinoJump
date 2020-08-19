@@ -5,19 +5,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Utilities {
 
-    public static TextureRegion[] textureCutter(Texture texture, int parts, int size, int start){
+    public static TextureRegion[] textureCutter(Texture texture, int parts, int size, int start) {
 
-        TextureRegion tmp[][] = TextureRegion.split(texture,texture.getWidth()/parts,texture.getHeight());
+        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / parts, texture.getHeight());
         TextureRegion[] regions = new TextureRegion[parts];
         TextureRegion[] finalTexture = new TextureRegion[size];
-        for (int i = 0; i < parts; i++){
-            regions[i] = tmp[0][i];
-        }
+        System.arraycopy(tmp[0], 0, regions, 0, parts);
 
-        for (int i = 0; i<size;i++){
-            finalTexture[i] = regions[i+start];
-        }
+        System.arraycopy(regions, 0 + start, finalTexture, 0, size);
 
         return finalTexture;
     }
+
+
 }

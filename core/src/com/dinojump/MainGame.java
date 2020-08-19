@@ -3,11 +3,14 @@ package com.dinojump;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
@@ -22,6 +25,8 @@ public class MainGame extends Game {
 	public com.dinojump.MenuScreen menuScreen;
 	public OptionsScreen optionsScreen;
 
+	public Box2DScreen box2DScreen;
+
 	public AssetManager getManager(){
 		return manager;
 	}
@@ -29,28 +34,27 @@ public class MainGame extends Game {
 	@Override
 	public void create() {
 		manager = new AssetManager();
+		manager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 		manager.load("DinoSprites - doux.png",Texture.class);
 		manager.load("DinoSprites - mort.png",Texture.class);
 		manager.load("DinoSprites - tard.png",Texture.class);
 		manager.load("DinoSprites - vita.png",Texture.class);
 		manager.load("bg.png",Texture.class);
-		manager.load("spike.png",Texture.class);
-		manager.load("Cactus.png",Texture.class);
-		manager.load("floor_1.png",Texture.class);
-		manager.load("overfloor.png",Texture.class);
 		manager.load("audio/die.ogg", Sound.class);
 		manager.load("audio/jump.ogg", Sound.class);
 		manager.load("audio/song.ogg", Music.class);
 		manager.load("gameover.png", Texture.class);
 		manager.load("play.png", Texture.class);
+		manager.load("maps/map.tmx",TiledMap.class);
 		manager.finishLoading();
 
 		gameScreen = new GameScreen(this);
 		gameOverScreen = new GameOverScreen(this);
 		menuScreen = new MenuScreen(this);
 		optionsScreen = new OptionsScreen(this);
+		box2DScreen = new Box2DScreen(this);
 
-		setScreen(menuScreen);
+		setScreen(gameScreen);
 
 	}
 
