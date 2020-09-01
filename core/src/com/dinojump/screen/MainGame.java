@@ -1,4 +1,4 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
@@ -7,8 +7,6 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,12 +18,12 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
 
 public class MainGame extends Game {
 	private AssetManager manager;
-	public com.dinojump.GameScreen gameScreen;
-	public com.dinojump.GameOverScreen gameOverScreen;
-	public com.dinojump.MenuScreen menuScreen;
+	public com.dinojump.screen.GameScreen gameScreen;
+	public com.dinojump.screen.GameOverScreen gameOverScreen;
+	public MenuScreen menuScreen;
 	public OptionsScreen optionsScreen;
 
-	public Box2DScreen box2DScreen;
+	public com.dinojump.screen.Box2DScreen box2DScreen;
 
 	public AssetManager getManager(){
 		return manager;
@@ -54,7 +52,7 @@ public class MainGame extends Game {
 		optionsScreen = new OptionsScreen(this);
 		box2DScreen = new Box2DScreen(this);
 
-		setScreen(gameScreen);
+		setScreen(menuScreen);
 
 	}
 

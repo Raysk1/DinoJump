@@ -1,9 +1,9 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Screen;
 
 public abstract class BaseScreen implements Screen {
-    public   MainGame game;
+    public MainGame game;
 
     public BaseScreen(MainGame game){
         this.game = game;

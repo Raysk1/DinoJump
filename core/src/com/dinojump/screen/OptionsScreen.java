@@ -1,4 +1,4 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -13,7 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.dinojump.entities.PlayerEntity;
+import com.dinojump.screen.BaseScreen;
+import com.dinojump.screen.MainGame;
+import com.dinojump.utilities.Utilities;
 
 public class OptionsScreen extends BaseScreen {
 
@@ -22,8 +24,6 @@ public class OptionsScreen extends BaseScreen {
     private float tiempo;
     private TextureRegion[] playerRunRegion[] = new TextureRegion[4][];
     private TextureRegion[] actualFrame = new TextureRegion[4];
-
-
     private Stage stage;
     private Skin skin;
     private CheckBox music, sound;

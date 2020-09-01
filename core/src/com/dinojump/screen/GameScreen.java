@@ -1,4 +1,4 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -7,8 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapRenderer;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -18,12 +21,18 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.dinojump.entities.DinoEggEntity;
+import com.dinojump.entities.FireBall;
+import com.dinojump.utilities.WorldCreator;
 import com.dinojump.entities.PlayerEntity;
+import com.dinojump.utilities.Constants;
 
 public class GameScreen extends BaseScreen {
     private Stage stage;
     private World world;
-    private com.dinojump.entities.PlayerEntity player;
+    private PlayerEntity player;
+    private FireBall fireBall;
+    private DinoEggEntity eggEntity;
     private Sound dieSound, jumpSound;
     private Music gameMusic;
     private boolean musicOn = true, soundOn = true;
@@ -34,9 +43,11 @@ public class GameScreen extends BaseScreen {
     private WorldCreator worldCreator;
 
 
+
+
     public GameScreen(final MainGame game) {
         super(game);
-        stage = new Stage(new FillViewport(640,320));
+        stage = new Stage(new FillViewport(640,384));
         world = new World(new Vector2(0, -10), true);
         dieSound = game.getManager().get("audio/die.ogg");
         jumpSound = game.getManager().get("audio/jump.ogg");
@@ -62,10 +73,10 @@ public class GameScreen extends BaseScreen {
                 }
 
                 if (areCollided(contact, "player", "spike")) {
-                    player.setAlive(false);
-                    if (soundOn) {
+                    if (soundOn && player.isAlive()) {
                         dieSound.play();
                     }
+                    player.setAlive(false);
                     Gdx.input.vibrate(1500);
                     game.switchScreen(game, game.gameOverScreen, stage, 2.5f);
 
@@ -74,6 +85,10 @@ public class GameScreen extends BaseScreen {
 
             @Override
             public void endContact(Contact contact) {
+                if (areCollided(contact,"player","floor")){
+                    player.setJumping(true);
+
+                }
 
             }
 
@@ -94,16 +109,23 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void show() {
-        stage.getCamera().position.x = 200;
+        stage.getCamera().position.x = 350;
         playerTexture(playerTexture);
         batch = new SpriteBatch();
         map = game.getManager().get("maps/map.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(map,batch);
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
 
-        worldCreator = new WorldCreator(world,map);
+        worldCreator = new WorldCreator(world,map,stage);
         worldCreator.create();
+        fireBall = new FireBall(player);
+        stage.addActor(fireBall);
 
+
+        RectangleMapObject rectangleMapObject = (RectangleMapObject) map.getLayers().get("egg").getObjects().get("egg");
+        Rectangle rectangle = rectangleMapObject.getRectangle();
+        eggEntity = new DinoEggEntity(rectangle,world,player);
+        stage.addActor(eggEntity);
 
 
         if (musicOn) {
@@ -114,46 +136,46 @@ public class GameScreen extends BaseScreen {
     public void hide() {
         stage.clear();
         player.detach();
+        eggEntity.detach();
+        fireBall.detach();
 
     }
 
     @Override
     public void render(float delta) {
+        stage.act();
         Gdx.gl.glClearColor(0.4f, 0.5f, 0.8f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        stage.act();
         world.step(delta, 6, 2);
 
 
         Vector3 position = stage.getCamera().position;
-        float cameraLocation = (stage.getWidth() / 2.5f) - position.x;
-        if (player.getX() > 100 && player.getX() > cameraLocation && player.isAlive()) {
-            float lerp = 0.1f;
+        float cameraLocationX = (stage.getWidth() / 2.5f) - position.x;
+        // float cameraLocationY =  (stage.getHeight() / 2.5f) - position.y;
 
-            position.x += (player.getX() + cameraLocation) * lerp * delta * Constants.PIXELS_IN_METER;
+
+        float lerp = 0.1f;
+        if (player.getX() > 300 && player.getX() > cameraLocationX && player.isAlive()) {
+            position.x += (player.getX() + cameraLocationX) * lerp * delta * Constants.PIXELS_IN_METER;
         }
+        /*
+        if (player.getY() > cameraLocationY){
+            position.y += (player.getY() + cameraLocationY) * lerp * delta * Constants.PIXELS_IN_METER;
+        }*/
+
+        musicControl();
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
-
-        if (!player.isAlive()) {
-            gameMusic.stop();
-        }
-
-        if (Gdx.input.justTouched()) {
-            if (player.isAlive() && !player.isJumping() && soundOn) {
-                jumpSound.play();
-            }
-            player.jump();
-
-        }
         mapRenderer.render();
-
-
         stage.draw();
+
+
+
     }
 
     @Override
     public void dispose() {
+        fireBall.detach();
         mapRenderer.dispose();
         player.detach();
         batch.dispose();
@@ -169,17 +191,13 @@ public class GameScreen extends BaseScreen {
         this.musicOn = musicOn;
     }
 
-    public boolean isSoundOn() {
-        return soundOn;
-    }
-
     public void setSoundOn(boolean soundOn) {
         this.soundOn = soundOn;
     }
 
     private void playerTexture(String texture) {
         Texture playerTexture = game.getManager().get("DinoSprites - " + texture + ".png");
-        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 2f));
+        player = new PlayerEntity(world, playerTexture, new Vector2(-1, 4f));
         stage.addActor(player);
     }
 
@@ -187,12 +205,20 @@ public class GameScreen extends BaseScreen {
         this.playerTexture = playerTexture;
     }
 
-    public String getPlayerTexture() {
-        return playerTexture;
-    }
+    private void musicControl(){
 
-    public boolean isMusicOn() {
-        return musicOn;
+        if (!player.isAlive()) {
+            gameMusic.stop();
+        }
+
+        if (Gdx.input.justTouched()) {
+            if (player.isAlive() && !player.isJumping() && soundOn) {
+                jumpSound.play();
+            }
+            player.setMustJump(true);
+
+        }
+
     }
 
 

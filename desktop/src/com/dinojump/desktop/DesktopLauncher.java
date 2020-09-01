@@ -2,7 +2,7 @@ package com.dinojump.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.dinojump.MainGame;
+import com.dinojump.screen.MainGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

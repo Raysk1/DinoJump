@@ -1,4 +1,4 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,46 +11,43 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 
-public class MenuScreen extends BaseScreen {
+public class GameOverScreen extends BaseScreen {
     private Stage stage;
     private Skin skin;
-    private Image name;
-    private TextButton play, options;
+    private Image gameOver;
+    private TextButton retry, menu;
 
-    public MenuScreen(final MainGame game) {
+    public GameOverScreen(final MainGame game) {
         super(game);
-        stage = new Stage(new FillViewport(640, 360));
+        stage = new Stage(new FillViewport(640,360));
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-        name = new Image(game.getManager().get("play.png", Texture.class));
-        play = new TextButton("Play", skin);
-        options = new TextButton("Options", skin);
+        gameOver = new Image(game.getManager().get("gameover.png",Texture.class));
+        retry = new TextButton("Retry",skin);
+        menu = new TextButton("Menu", skin);
 
-        play.addCaptureListener(new ChangeListener() {
+        retry.addCaptureListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.switchScreen(game,game.gameScreen,stage,1f);
+                game.setScreen(game.gameScreen);
             }
         });
 
-        options.addCaptureListener(new ChangeListener() {
+        menu.addCaptureListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(game.optionsScreen);
+                game.setScreen(game.menuScreen);
             }
         });
 
-       name.setPosition(320-name.getWidth()/8,320-name.getHeight()/1.5f);
-       name.setSize(160,80);
-       stage.addActor(name);
+        gameOver.setPosition(320-gameOver.getWidth()/2,320-gameOver.getHeight() );
+        retry.setPosition(320-retry.getWidth(),170);
+        retry.setSize(100,50);
+        menu.setPosition(320-menu.getWidth(),100);
+        menu.setSize(100,50);
+        stage.addActor(retry);
+        stage.addActor(gameOver);
+        stage.addActor(menu);
 
-        play.setSize(90,40);
-        play.setPosition(320-play.getWidth()/2,150);
-        stage.addActor(play);
-
-
-        options.setSize(90,40);
-        options.setPosition(320-options.getWidth()/2,100);
-        stage.addActor(options);
     }
 
     @Override
@@ -69,8 +66,9 @@ public class MenuScreen extends BaseScreen {
         stage.dispose();
     }
 
+    @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.0f,0.0f,0.0f,1f);
+        Gdx.gl.glClearColor(0.4f,0.5f,0.8f,1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act();
         stage.draw();

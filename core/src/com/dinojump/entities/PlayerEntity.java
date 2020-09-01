@@ -12,10 +12,9 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.dinojump.Constants;
-import com.dinojump.Utilities;
+import com.dinojump.utilities.Utilities;
 
-import static com.dinojump.Constants.*;
+import static com.dinojump.utilities.Constants.*;
 
 public class PlayerEntity extends Actor {
     private Texture texture;
@@ -67,6 +66,7 @@ public class PlayerEntity extends Actor {
     public void detach(){
         body.destroyFixture(fixture);
         world.destroyBody(body);
+
     }
 
 
@@ -89,7 +89,7 @@ public class PlayerEntity extends Actor {
         }
 
         if (!alive){
-            animation =  new Animation(0.5f,playerDieRegion);
+            animation =  new Animation<TextureRegion>(0.5f,playerDieRegion);
         }
     }
 
@@ -105,9 +105,6 @@ public class PlayerEntity extends Actor {
         this.jumping = jumping;
     }
 
-    public boolean isMustJump() {
-        return mustJump;
-    }
 
     public void setMustJump(boolean mustJump) {
         this.mustJump = mustJump;

@@ -1,4 +1,4 @@
-package com.dinojump;
+package com.dinojump.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -20,8 +21,9 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.dinojump.utilities.WorldCreator;
 
-import static com.dinojump.Constants.PIXELS_IN_METER;
+import static com.dinojump.utilities.Constants.PIXELS_IN_METER;
 
 public class Box2DScreen extends BaseScreen {
     private World world;
@@ -57,7 +59,7 @@ public class Box2DScreen extends BaseScreen {
         mapRenderer = new OrthogonalTiledMapRenderer(map,1,batch);
         mapRenderer.setView(camera);
 
-        bodyCreator = new WorldCreator(world,map);
+        bodyCreator = new WorldCreator(world,map,null);
         bodyCreator.create();
         //sueloBody();
 
@@ -70,34 +72,9 @@ public class Box2DScreen extends BaseScreen {
 
 
 
-    private Fixture createPinchosFixture(Body pinchosBody){
-        Vector2[] vertices = new Vector2[3];
-        vertices[0] = new Vector2(-0.5f,-0.5f);
-        vertices[1] = new Vector2(0.5f,-0.5f);
-        vertices[2] = new Vector2(0,0.5f);
 
-        PolygonShape shape = new PolygonShape();
-        shape.set(vertices);
-        Fixture fix = pinchosBody.createFixture(shape,1);
-        shape.dispose();
-        return fix;
-    }
 
-    private BodyDef createPinchosBodyDef(float x) {
-        BodyDef def = new BodyDef();
-        def.position.set(x,0.5f);
-        def.type = BodyDef.BodyType.StaticBody;
-        return def;
-    }
 
-    private BodyDef createSueloBodyDef(float x, float y) {
-        BodyDef def = new BodyDef();
-        //def.position.set(x/PIXELS_IN_METER*2,y/PIXELS_IN_METER*2);
-        def.type = BodyDef.BodyType.StaticBody;
-
-        System.out.println(y);
-        return def;
-    }
 
     private BodyDef createDinoBodyDef() {
         BodyDef def = new BodyDef();
@@ -128,6 +105,12 @@ public class Box2DScreen extends BaseScreen {
          playerPhysics();
 
         world.step(delta,6,2);
+
+        Vector3 position = camera.position;
+        float cameraLocation = (60 / 2.5f) - position.x;
+            float lerp = 0.1f;
+
+            position.x += (dinoBody.getPosition().x + cameraLocation) * lerp * delta;
 
         //mapRenderer.setView(camera);
 
@@ -187,12 +170,7 @@ public class Box2DScreen extends BaseScreen {
 
     }
 
-    private void pinchosBody(){
-        BodyDef pinchosBodyDef = createPinchosBodyDef(5);
-        pinchosBody = world.createBody(pinchosBodyDef);
-        pinchosFixture = createPinchosFixture(pinchosBody);
-        pinchosFixture.setUserData("spike");
-    }
+
 
     private void contactListener(){
         world.setContactListener(new ContactListener() {
